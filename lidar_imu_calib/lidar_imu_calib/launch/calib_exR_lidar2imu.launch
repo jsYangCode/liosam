@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="lidar_imu_calib" type="calib_exR_lidar2imu_node" name="calib_exR_lidar2imu_node" output="screen">
+        <param name="/lidar_topic" value="/rslidar_points"/>
+        <param name="/imu_topic" value="/imu/data"/>
+        <param name="/bag_file" value="/home/yang/2021-04-30-11-17-11.bag"/>
+    </node>
+</launch>

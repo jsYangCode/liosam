@@ -1,0 +1,35 @@
+记录一下相对于原码修改的地方
+
+1.param.yaml里需要修改Sensor Settings下的各项参数
+2.utility.h里：
+	line 60 在SensorType中加入ROBOSENSE
+	line 185-188 加入sensorStr == "robosense"的条件分支
+	line 192 在报错输出的语句中加入robosense（虽然没什么卵用）
+3.imageProjection.cpp里：
+	line 33-47 新建一个RobosensePointXYZIRT结构，需要根据实际的激光雷达返回的数据来定义其中的变量
+	line 87 pcl::PointCloud<RobosensePointXYZIRT>::Ptr tmpRobosenseCloudIn;（不知道怎么描述这句的用途）
+	line 126 tmpRobosenseCloudIn.reset(new pcl::PointCloud<RobosensePointXYZIRT>());
+	line 246-263 加入sensor == SensorType::ROBOSENSE的条件分支，将Robosense格式的数据转换为Velodyne格式
+
+robosense激光雷达的相关参数
+16线激光雷达，垂直方向-15°~15°，分辨率2°，正好16条线
+每秒出点320000个，也就是一条线有20000点/秒，但一圈有多少个点（即水平的分辨率）还跟转速有关
+有三种转速5、10、20Hz，分别对应一秒5圈、10圈和20圈，也就是一圈4000点、2000点和1000点
+用一圈360°除以点数得到水平的分辨率：0.09°、0.18°和0.36°
+
+怎么知道Robosense传回的点云数据都有哪些成员？
+应该是有xyz坐标、时间戳、反射率、水平旋转角度，前三个定义结构的时候有，水平旋转角度可以不管？
+
+现在已经不需要雷达传回的点云数据包含ring和time了，用已有的数据集测试过还是有很好的效果
+下一步要解决的是算法本身使用的9轴imu数据与我们实际用的6轴imu数据之间的转换
+
+实物测试需要：Topics里的四个topic名字要与实物一致
+
+rs_to_velodyne.cpp里修改了对XYZI格式的点云的转换，原本只转换成XYZIR，现在是XYZIRT(只是格式变动，time我直接给了个0)
+
+目前进度：
+启动程序的方法：1.启动rs2velodyne的节点 roscore->rosrun rs_to_velodyne rs_to_velodyne XYZI
+	       2.启动lio-sam的节点 roslaunch lio_sam run.launch
+	       3.运行录制的.bag文件 rosbag play ~/data/2021-04-19-16-14-10.bag -r 1
+
+rosrun pcl_ros pointcloud_to_pcd input:=/lio_sam/mapping/cloud_registered
