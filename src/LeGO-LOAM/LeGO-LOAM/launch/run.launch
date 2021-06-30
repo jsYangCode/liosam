@@ -1,0 +1,33 @@
+<launch>
+    <include file="$(find lego_loam)/launch/rviz.launch"/>
+    <!--- Sim Time -->
+    <param name="/use_sim_time" value="true" />
+
+
+    <!--- LeGO-LOAM -->    
+    <node pkg="lego_loam" type="imageProjection"    name="imageProjection"    output="screen">
+            <remap from="/rslidar_points" to="/rslidar_points"/>
+    </node>
+
+    <node pkg="lego_loam" type="featureAssociation" name="featureAssociation" output="screen">
+		
+    </node>
+
+    <node pkg="lego_loam" type="mapOptmization"     name="mapOptmization"     output="screen">
+		        <param name="pitch_correction" value="0.0000"/>
+        <param name="yaw_correction" value="0.00000"/>
+        <param name="roll_correction" value="-0.000"/>
+
+        <param name="globalMapVisualizationSearchRadius" value="10000"/>
+
+        <param name="loopClosureEnableFlag" value="true"/>
+        <param name="historyKeyframeSearchRadius" value="5"/>
+        <param name="historyKeyframeSearchNum" value="25"/>
+        <param name="historyKeyframeFitnessScore" value="0.3"/>
+
+	</node>
+
+    <node pkg="lego_loam" type="transformFusion"    name="transformFusion"    output="screen"/>
+
+
+</launch>

@@ -1,0 +1,42 @@
+<launch>
+  <param name="scanDuration" value="0.9"/>
+  <param name="use_sim_time" value="true"/>
+  <param name="/skipFrameNum" value="2"/>
+  <param name="/scanWaitTime" value="1.0"/>
+  <param name="imuQueLength" value="50"/>
+
+  <arg name="rviz" default="true" />
+
+  <node pkg="loam_continuous" type="scanRegistration_ct" name="scanRegistration_ct" output="screen">
+    <remap from="/microstrain/imu" to="/mobile_base/sensors/imu_data"/>
+  </node>
+
+  <node pkg="loam_continuous" type="laserOdometry_ct" name="laserOdometry_ct" output="screen">
+
+  </node>
+
+  <node pkg="loam_continuous" type="laserMapping_ct" name="laserMapping_ct" output="screen">
+
+  </node>
+
+
+  <node pkg="loam_continuous" type="transformMaintenance_ct" name="transformMaintenance_ct" output="screen">
+
+  </node>
+
+
+  <node pkg="loam_continuous" type="scanGeneratorUsetf" name="scanGeneratorUsetf" output="screen">
+    <remap from="/noise_lidar_point_result" to="/scan"/>
+    <remap from="/prius/revo_hd1_lidar/state" to="/mobile_base/motor_state"/>
+  </node>
+
+
+  <!--node pkg="tf" type="static_transform_publisher" name="camera2motor"  args="0 0 0 0   0 0 /camera   /motor 10" /-->
+
+
+  <group if="$(arg rviz)">
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz1" args="-d $(find loam_continuous)/rviz_cfg/loam_continuous.rviz"/>
+    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz2" args="-d $(find loam_continuous)/rviz_cfg/map.rviz"/>
+  </group>
+
+</launch>
